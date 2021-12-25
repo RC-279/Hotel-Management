@@ -7,6 +7,14 @@ import datetime
 username = input("Enter Your Username : ")
 password = input("Enter Your Password : ")
 mydb = mysql.connector.connect(user=username, password=password,
+                               host='localhost')
+mycursor = mydb.cursor()
+
+database_creation = '''create database IF NOT EXISTS hotel_management_rc279'''
+mycursor.execute(database_creation)
+created_database = mydb.commit()
+
+mydb = mysql.connector.connect(user=username, password=password,
                                host='localhost',
                                database='hotel_management_rc279')
 mycursor = mydb.cursor()
