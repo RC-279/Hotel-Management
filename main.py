@@ -3,6 +3,7 @@ import random
 import pandas as pd
 import time
 import datetime
+import matplotlib.pyplot as plt
 
 username = input("Enter Your Username : ")
 password = input("Enter Your Password : ")
@@ -24,28 +25,28 @@ mycursor = mydb.cursor()
 def auto_table_creation():
     database_creation = '''create database IF NOT EXISTS hotel_management_rc279'''
 
-    customer_registration = '''CREATE TABLE IF NOT EXISTS customer_registration (customer_id varchar (50),
-    customer_name  varchar (50), customer_age  varchar (50), customer_sex  varchar (50),customer_mobile_no  
-    varchar (50), customer_email  varchar (50), customer_Nationality  varchar (50),type_of_document varchar 
-    (50), name_on_document  varchar (50), customer_no_of_document  varchar (50),customer_check_in  varchar 
-    (50), check_out varchar (50))'''
+    customer_registration = '''CREATE TABLE IF NOT EXISTS customer_registration (customer_id varchar (50) Primary key,
+        customer_name  varchar (50), customer_age  integer(2), customer_sex  varchar (50),customer_mobile_no  
+        integer (12), customer_email  varchar (50), customer_Nationality  varchar (50),Type_of_document varchar 
+        (50), Name_on_document  varchar (50), Customer_no_of_document  integer (50),customer_check_in  Date 
+        , check_out Date)'''
 
     room_booked = '''CREATE TABLE IF NOT EXISTS Room_Booked(Customer_ID integer(100),Room_No integer(10),
-    Room_Choice integer(10),room_type varchar (20),No_of_Days integer(10),Room_Rent integer(10))'''
+       Room_Choice integer(10),room_type varchar (20),No_of_Days integer(10),Room_Rent integer(10))'''
 
     restaurant_bill = '''create table IF NOT EXISTS restaurant_bill (Customer_ID integer(200), choice_dish varchar(20), 
-    quantity varchar(20),Particular varchar (50), Total_Bill varchar(30))'''
+        quantity integer(20),Particular varchar (50), Total_Bill integer(30))'''
 
-    game_zone = '''create table IF NOT EXISTS game_zone (Customer_ID varchar (20), no_of_person varchar(20), choice_game 
-    varchar(20), name_of_game varchar(50), Total_Bill varchar(25))'''
+    game_zone = '''create table IF NOT EXISTS game_zone (Customer_ID integer (20), no_of_person varchar(20), choice_game 
+       integer(20), name_of_game varchar(50), Total_Bill integer(25))'''
 
-    shopping_zone = '''create table IF NOT EXISTS shopping_zone (Customer_ID varchar (50), choice_particular 
-    varchar (50), quantity varchar (50), particular_name varchar (50), Total_Bill varchar(50))'''
+    shopping_zone = '''create table IF NOT EXISTS shopping_zone (Customer_ID integer (50), choice_particular 
+        varchar (50), quantity integer (50), particular_name varchar (50), Total_Bill integer(50))'''
 
-    final_bill = '''create table IF NOT EXISTS final_bill(date_now varchar(100), customer_id varchar(100),name_fb_1 
-    varchar(100),mobile_mn_1 varchar(100),r_n_1 varchar(100),no_days_1 varchar(100),bill_rbo varchar(100),
-    bill_rb varchar(100),bill_gz varchar(100), bill_sz varchar(100),total_bill varchar(100),payment 
-    varchar(100),status varchar(100))'''
+    final_bill = '''create table IF NOT EXISTS final_bill(date_now Date, customer_id integer(100),name_fb_1 
+        varchar(100),mobile_mn_1 integer(100),r_n_1 varchar(100),no_days_1 integer(100),bill_rbo integer(100),
+        bill_rb integer(100),bill_gz integer(100), bill_sz integer(100),total_bill integer(100),payment_type 
+        varchar(100),status varchar(100))'''
 
     mycursor.execute(database_creation)
     mycursor.execute(customer_registration)
@@ -878,13 +879,13 @@ def final_bill():
     print("\t          Mobile no. : ", mobile_mn_1)
     print("\t   Total no. of days : ", no_days_1, "Days")
     print()
-    float_rbo = float(bill_rbo)
-    total_bill = bill_gz + bill_rb + bill_rb + float_rbo
+    #float_rbo = float(bill_rbo)
+    total_bill = bill_gz + bill_rb + bill_rb + bill_rbo
     l.append(total_bill)
     print("\t-----------------------------------------------------------------------")
     print("\tSr.no                 Particular                    Price")
     print("\t-----------------------------------------------------------------------")
-    print("\t 1                    Room Rent                    ", float_rbo, "Rs")
+    print("\t 1                    Room Rent                    ", bill_rbo, "Rs")
     print("\t 2                    Restaurant bill              ", bill_rb, "Rs")
     print("\t 3                    Gaming Zone bill             ", bill_gz, "Rs")
     print("\t 4                    Shopping Zone bill           ", bill_sz, "Rs")
@@ -904,7 +905,7 @@ def final_bill():
     print("Thank You!! Visit Again!! ")
 
     cust = (l)
-    sql = "insert into final_bill(date_now,customer_id,name_fb_1,mobile_mn_1,r_n_1,no_days_1,bill_rbo,bill_rb,bill_gz,bill_sz,total_bill,payment,status)values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    sql = "insert into final_bill(date_now,customer_id,name_fb_1,mobile_mn_1,r_n_1,no_days_1,bill_rbo,bill_rb,bill_gz,bill_sz,total_bill,payment_type,status)values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     mycursor.execute(sql, cust)
     mydb.commit()
 
@@ -985,12 +986,12 @@ def previous_bills():
     print("\t          Mobile no. : ", mobile_mn_1)
     print("\t   Total no. of days : ", no_days_1, "Days")
     print()
-    float_rbo = float(bill_rbo)
-    total_bill = bill_gz + bill_rb + bill_rb + float_rbo
+    #float_rbo = float(bill_rbo)
+    total_bill = bill_gz + bill_rb + bill_rb + bill_rbo
     print("\t-----------------------------------------------------------------------")
     print("\tSr.no                 Particular                    Price")
     print("\t-----------------------------------------------------------------------")
-    print("\t 1                    Room Rent                    ", float_rbo, "Rs")
+    print("\t 1                    Room Rent                    ", bill_rbo, "Rs")
     print("\t 2                    Restaurant bill              ", bill_rb, "Rs")
     print("\t 3                    Gaming Zone bill             ", bill_gz, "Rs")
     print("\t 4                    Shopping Zone bill           ", bill_sz, "Rs")
@@ -1002,6 +1003,169 @@ def previous_bills():
     print()
 
 
+# ************************* Sales Graph Analysis ************************* #
+
+
+def restaurant_sales_graph () :
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 1")
+    ch1 = mycursor.fetchall()
+    choi1 = []
+    for i in ch1:
+        choi1.append(i[0])
+    choice_1 = sum(choi1)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 2")
+    ch2 = mycursor.fetchall()
+    choi2 = []
+    for i in ch2:
+        choi2.append(i[0])
+    choice_2 = sum(choi2)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 3")
+    ch3 = mycursor.fetchall()
+    choi3 = []
+    for i in ch3:
+        choi3.append(i[0])
+    choice_3 = sum(choi3)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 4")
+    ch4 = mycursor.fetchall()
+    choi4 = []
+    for i in ch2:
+        choi4.append(i[0])
+    choice_4 = sum(choi4)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 5")
+    ch5 = mycursor.fetchall()
+    choi5 = []
+    for i in ch5:
+        choi5.append(i[0])
+    choice_5 = sum(choi5)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 6")
+    ch6 = mycursor.fetchall()
+    choi6 = []
+    for i in ch6:
+        choi6.append(i[0])
+    choice_6 = sum(choi6)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 7")
+    ch7 = mycursor.fetchall()
+    choi7 = []
+    for i in ch7:
+        choi7.append(i[0])
+    choice_7 = sum(choi7)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 8")
+    ch8 = mycursor.fetchall()
+    choi8 = []
+    for i in ch8:
+        choi8.append(i[0])
+    choice_8 = sum(choi8)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 9")
+    ch9 = mycursor.fetchall()
+    choi9 = []
+    for i in ch9:
+        choi9.append(i[0])
+    choice_9 = sum(choi9)
+
+    mycursor.execute("select quantity from restaurant_bill where choice_dish = 10")
+    ch10 = mycursor.fetchall()
+    choi10 = []
+    for i in ch10:
+        choi10.append(i[0])
+    choice_10 = sum(choi10)
+
+    particulars = ["Mutter Paneer", "Malai Kofta", "Palak Paneer", "Veg. Kolapuri", "Chicken Spicy", "Chicken Special",
+                   "Veg. Pulao", "Veg. Briyani", "Veg. Combo", "Non Veg. Combo"]
+    quantity = [choice_1, choice_2, choice_3, choice_4, choice_5, choice_6, choice_7, choice_8, choice_9, choice_10]
+    plt.figure(figsize=(16, 5))
+    plt.title("Restaurant Sales")
+    plt.xlabel("Types Of Dishes")
+    plt.ylabel("Quantity Sales")
+    plt.bar(particulars, quantity)
+    plt.show()
+
+
+def game_zone_sales_graph () :
+    mycursor.execute("select no_of_person from game_zone where choice_game = 1")
+    ch1 = mycursor.fetchall()
+    choi1 = []
+    for i in ch1:
+        choi1.append(i[0])
+    choice_1 = sum(choi1)
+
+    mycursor.execute("select no_of_person from game_zone where choice_game = 2")
+    ch2 = mycursor.fetchall()
+    choi2 = []
+    for i in ch2:
+        choi2.append(i[0])
+    choice_2 = sum(choi2)
+
+    mycursor.execute("select no_of_person from game_zone where choice_game = 3")
+    ch3 = mycursor.fetchall()
+    choi3 = []
+    for i in ch3:
+        choi3.append(i[0])
+    choice_3 = sum(choi3)
+
+    mycursor.execute("select no_of_person from game_zone where choice_game = 4")
+    ch4 = mycursor.fetchall()
+    choi4 = []
+    for i in ch4:
+        choi4.append(i[0])
+    choice_4 = sum(choi4)
+
+    particulars = ["Pin Ball", "Pac Man","Mystery Room","VR Games"]
+    quantity = [choice_1, choice_2, choice_3, choice_4]
+    plt.figure(figsize=(8, 5))
+    plt.title("Game Zone Sales")
+    plt.xlabel("Types Of Games")
+    plt.ylabel("Quantity Sales")
+    plt.bar(particulars, quantity)
+    plt.show()
+
+
+def shopping_zone_garph ():
+    mycursor.execute("select quantity from shopping_zone where choice_particular = 1")
+    ch1 = mycursor.fetchall()
+    choi1 = []
+    for i in ch1:
+        choi1.append(i[0])
+    choice_1 = sum(choi1)
+
+    mycursor.execute("select quantity from shopping_zone where choice_particular = 2")
+    ch2 = mycursor.fetchall()
+    choi2 = []
+    for i in ch2:
+        choi2.append(i[0])
+    choice_2 = sum(choi2)
+
+    mycursor.execute("select quantity from shopping_zone where choice_particular = 3")
+    ch3 = mycursor.fetchall()
+    choi3 = []
+    for i in ch3:
+        choi3.append(i[0])
+    choice_3 = sum(choi3)
+
+    mycursor.execute("select quantity from shopping_zone where choice_particular = 4")
+    ch4 = mycursor.fetchall()
+    choi4 = []
+    for i in ch4:
+        choi4.append(i[0])
+    choice_4 = sum(choi4)
+
+    particulars = ["Shirt", "T-Shirt", "Pant", "Jacket"]
+    quantity = [choice_1, choice_2, choice_3, choice_4]
+    plt.figure(figsize=(8, 5))
+    plt.title("Shopping Zone Sales")
+    plt.xlabel("Types Of Garments")
+    plt.ylabel("Quantity Sales")
+    plt.bar(particulars, quantity)
+    plt.show()
+
+
 # ************************* MULTI FUNCTIONAL LOOPED MENU  ************************* #
 
 def Main_MenuSet():
@@ -1011,22 +1175,23 @@ def Main_MenuSet():
     print()
 
     def final_menu():
-        print("[1] New Registration")
-        print("[2] Modification Of Data")
-        print("[0] Exit The Program")
+        print("| [1] | New Registration                     ")
+        print("| [2] | Previous Data & Modification Of Data ")
+        print("| [3] | Sales Graph Analysis                 ")
+        print("| [0] | Exit The Program                     ")
 
     final_menu()
     option = int(input("Enter Your Option: "))
     while option != 0:
         if option == 1:
             def menu_python():
-                print("[1] Customer Registration")
-                print("[2] Room Booking")
-                print("[3] Restaurant")
-                print("[4] Game Zone")
-                print("[5] Shopping Zone")
-                print("[6] Final Bill")
-                print("[0] Exit the program.")
+                print("| [1] | Customer Registration")
+                print("| [2] | Room Booking")
+                print("| [3] | Restaurant")
+                print("| [4] | Game Zone")
+                print("| [5] | Shopping Zone")
+                print("| [6] | Final Bill")
+                print("| [0] | Exit the program.")
 
             menu_python()
             option = int(input("Enter Your Option: "))
@@ -1052,16 +1217,18 @@ def Main_MenuSet():
                 option = int(input("Enter Your Option: "))
         elif option == 2:
             def menu_sql():
-                print("[1] Customer Registration Data")
-                print("[2] Room Booking Data")
-                print("[3] Restaurant Data")
-                print("[4] Game Zone Data")
-                print("[5] shopping Zone Data")
-                print("[6] Search ")
-                print("[7] Updation Of Data")
-                print("[8] Removal Of Data")
-                print("[9] Previous Bills")
-                print("[0] Exit the program.")
+                print("Info : [1] - [5]  :  Previous Data")
+                print("Info : [6] - [9]  :  Modification Data")
+                print("| [1] | Customer Registration Data")
+                print("| [2] | Room Booking Data")
+                print("| [3] | Restaurant Data")
+                print("| [4] | Game Zone Data")
+                print("| [5] | shopping Zone Data")
+                print("| [6] | Search ")
+                print("| [7] | Updation Of Data")
+                print("| [8] | Removal Of Data")
+                print("| [9] | Previous Bills")
+                print("| [0] | Exit the program.")
 
             menu_sql()
             option = int(input("Enter Your Option: "))
@@ -1078,12 +1245,12 @@ def Main_MenuSet():
                     shopping_sql()
                 elif option == 6:
                     def menu_sql_search():
-                        print("[1] Customer Registration Data")
-                        print("[2] Room Booking Data")
-                        print("[3] Restaurant Data")
-                        print("[4] Game Zone Data")
-                        print("[5] shopping Zone Data")
-                        print("[0] Exit the program.")
+                        print("| [1] | Customer Registration Data")
+                        print("| [2] | Room Booking Data")
+                        print("| [3] | Restaurant Data")
+                        print("| [4] | Game Zone Data")
+                        print("| [5] | shopping Zone Data")
+                        print("| [0] | Exit the program.")
 
                     menu_sql_search()
                     option = int(input("Enter Your Option: "))
@@ -1108,12 +1275,12 @@ def Main_MenuSet():
                         option = int(input("Enter Your Option: "))
                 elif option == 7:
                     def menu_sql_update():
-                        print("[1] Customer Registration Data")
-                        print("[2] Room Booking Data")
-                        print("[3] Restaurant Data")
-                        print("[4] Game Zone Data")
-                        print("[5] shopping Zone Data")
-                        print("[0] Exit the program.")
+                        print("| [1] | Customer Registration Data")
+                        print("| [2] | Room Booking Data")
+                        print("| [3] | Restaurant Data")
+                        print("| [4] | Game Zone Data")
+                        print("| [5] | shopping Zone Data")
+                        print("| [0] | Exit the program.")
 
                     menu_sql_update()
                     option = int(input("Enter Your Option: "))
@@ -1138,12 +1305,12 @@ def Main_MenuSet():
                         option = int(input("Enter Your Option: "))
                 elif option == 8:
                     def menu_sql_update():
-                        print("[1] Customer Registration Data")
-                        print("[2] Room Booking Data")
-                        print("[3] Restaurant Data")
-                        print("[4] Game Zone Data")
-                        print("[5] shopping Zone Data")
-                        print("[0] Exit the program.")
+                        print("| [1] | Customer Registration Data")
+                        print("| [2] | Room Booking Data")
+                        print("| [3] | Restaurant Data")
+                        print("| [4] | Game Zone Data")
+                        print("| [5] | shopping Zone Data")
+                        print("| [0] | Exit the program.")
 
                     menu_sql_update()
                     option = int(input("Enter Your Option: "))
@@ -1168,12 +1335,31 @@ def Main_MenuSet():
                         option = int(input("Enter Your Option: "))
                 elif option == 9:
                     previous_bills()
+                    break
+                elif option == 0:
+                    break
+        elif option == 3 :
+            def sales_graph():
+                print("| [1] | Restaurant Sales Graph")
+                print("| [2] | Game Zone Sales Graph")
+                print("| [3] | Shopping Zone Sales Graph")
+                print("| [0] | Exit")
+
+            sales_graph()
+            option = int(input("Enter Your Option: "))
+            while option != 0:
+                if option == 1:
+                    restaurant_sales_graph()
+                elif option == 2:
+                    game_zone_sales_graph()
+                elif option == 3:
+                    shopping_zone_garph()
                 elif option == 0:
                     break
                 else:
                     print("Thank You !!")
                 print()
-                menu_sql()
+                sales_graph()
                 option = int(input("Enter Your Option: "))
         else:
             break
