@@ -27,7 +27,7 @@ def auto_table_creation():
 
     customer_registration = '''CREATE TABLE IF NOT EXISTS customer_registration (customer_id varchar (50) Primary key,
         customer_name  varchar (50), customer_age  integer(2), customer_sex  varchar (50),customer_mobile_no  
-        integer (12), customer_email  varchar (50), customer_Nationality  varchar (50),Type_of_document varchar 
+        varchar (100), customer_email  varchar (150), customer_Nationality  varchar (50),Type_of_document varchar 
         (50), Name_on_document  varchar (50), Customer_no_of_document  integer (50),customer_check_in  Date 
         , check_out Date)'''
 
@@ -37,14 +37,14 @@ def auto_table_creation():
     restaurant_bill = '''create table IF NOT EXISTS restaurant_bill (Customer_ID integer(200), choice_dish varchar(20), 
         quantity integer(20),Particular varchar (50), Total_Bill integer(30))'''
 
-    game_zone = '''create table IF NOT EXISTS game_zone (Customer_ID integer (20), no_of_person varchar(20), choice_game 
+    game_zone = '''create table IF NOT EXISTS game_zone (Customer_ID integer (20), no_of_person int(20), choice_game 
        integer(20), name_of_game varchar(50), Total_Bill integer(25))'''
 
     shopping_zone = '''create table IF NOT EXISTS shopping_zone (Customer_ID integer (50), choice_particular 
         varchar (50), quantity integer (50), particular_name varchar (50), Total_Bill integer(50))'''
 
     final_bill = '''create table IF NOT EXISTS final_bill(date_now Date, customer_id integer(100),name_fb_1 
-        varchar(100),mobile_mn_1 integer(100),r_n_1 varchar(100),no_days_1 integer(100),bill_rbo integer(100),
+        varchar(100),mobile_mn_1 varchar(100),r_n_1 varchar(100),no_days_1 integer(100),bill_rbo integer(100),
         bill_rb integer(100),bill_gz integer(100), bill_sz integer(100),total_bill integer(100),payment_type 
         varchar(100),status varchar(100))'''
 
@@ -1338,6 +1338,11 @@ def Main_MenuSet():
                     break
                 elif option == 0:
                     break
+                else :
+                    print("Thank You")
+                print()
+                menu_sql()
+                option = int(input("Enter Your Option: "))
         elif option == 3 :
             def sales_graph():
                 print("| [1] | Restaurant Sales Graph")
